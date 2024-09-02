@@ -1,4 +1,4 @@
-# Cryptography---19CS412-Classical-Techniques
+![Screenshot 2024-09-01 223144](https://github.com/user-attachments/assets/2b73a570-3674-4f37-bf1e-95cbbdc84044)![image](https://github.com/user-attachments/assets/0bf20352-dce7-49be-8773-9a0f3abea3d3)# Cryptography---19CS412-Classical-Techniques
 # EXP-01: Caeser Cipher
 Caeser Cipher using with different key values
 
@@ -401,11 +401,10 @@ int main() {
 ```
 ## OUTPUT:
 Simulating Hill Cipher
-
-![Uploading Screenshot 2024-09-02 221419.png…]()
+![Screenshot 2024-09-02 225857](https://github.com/user-attachments/assets/09fb8b51-d0ec-4e2a-ad8e-9b3c4d973b54)
 
 Input Message : RAJESH
- Padded Message : RAJESH Encrypted Message : JAACYV
+ Padded Message : RAJESH Encrypted Message : JAACYVYCB
  Decrypted Message : RAJESH
 ## RESULT:
 The program is executed successfully
