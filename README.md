@@ -122,154 +122,219 @@ To decrypt, use the INVERSE (opposite) of the last 3 rules, and the 1st as-is (d
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #define SIZE 30
+
 // Function to convert the string to lowercase
-void toLowerCase(char plain[], int ps)
-{
-int i;
-for (i = 0; i < ps; i++) {
-if (plain[i] > 64 && plain[i] < 91)
-plain[i] += 32;
+void toLowerCase(char plain[], int ps) {
+    int i;
+    for (i = 0; i < ps; i++) {
+        if (plain[i] >= 65 && plain[i] <= 90) // ASCII values for 'A' to 'Z'
+            plain[i] += 32;
+    }
 }
-}
+
 // Function to remove all spaces in a string
-int removeSpaces(char* plain, int ps)
-{
-int i, count = 0;
-for (i = 0; i < ps; i++)
-if (plain[i] != ' ')
-plain[count++] = plain[i];
-plain[count] = '\0';
-return count;
+int removeSpaces(char* plain, int ps) {
+    int i, count = 0;
+    for (i = 0; i < ps; i++) {
+        if (plain[i] != ' ')
+            plain[count++] = plain[i];
+    }
+    plain[count] = '\0';
+    return count;
 }
+
 // Function to generate the 5x5 key square
-void generateKeyTable(char key[], int ks, char keyT[5][5])
-{
-int i, j, k, flag = 0, *dicty;
-// a 26 character hashmap
-// to store count of the alphabet
-dicty = (int*)calloc(26, sizeof(int));
-for (i = 0; i < ks; i++) {
-if (key[i] != 'j')
-dicty[key[i] - 97] = 2;
+void generateKeyTable(char key[], int ks, char keyT[5][5]) {
+    int i, j, k;
+    int* dicty;
+
+    // A 26 character hashmap to store the count of the alphabet
+    dicty = (int*)calloc(26, sizeof(int));
+    for (i = 0; i < ks; i++) {
+        if (key[i] != 'j') // Treat 'j' as 'i'
+            dicty[key[i] - 97] = 2;
+    }
+
+    dicty['j' - 97] = 1; // Mark 'j' as used
+
+    i = 0;
+    j = 0;
+    for (k = 0; k < ks; k++) {
+        if (dicty[key[k] - 97] == 2) {
+            dicty[key[k] - 97] -= 1;
+            keyT[i][j] = key[k];
+            j++;
+            if (j == 5) {
+                i++;
+                j = 0;
+            }
+        }
+    }
+
+    // Fill remaining alphabet letters in key square
+    for (k = 0; k < 26; k++) {
+        if (dicty[k] == 0) {
+            keyT[i][j] = (char)(k + 97);
+            j++;
+            if (j == 5) {
+                i++;
+                j = 0;
+            }
+        }
+    }
+
+    free(dicty);
 }
-dicty['j' - 97] = 1;
-i = 0;
-j = 0;
-for (k = 0; k < ks; k++) {
-if (dicty[key[k] - 97] == 2) {
-dicty[key[k] - 97] -= 1;
-keyT[i][j] = key[k];
-j++;
-if (j == 5) {
-i++;
-j = 0;
+
+// Function to search for the characters of a digraph in the key square and return their position
+void search(char keyT[5][5], char a, char b, int arr[]) {
+    int i, j;
+
+    if (a == 'j') a = 'i';
+    if (b == 'j') b = 'i';
+
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (keyT[i][j] == a) {
+                arr[0] = i;
+                arr[1] = j;
+            } else if (keyT[i][j] == b) {
+                arr[2] = i;
+                arr[3] = j;
+            }
+        }
+    }
 }
-}
-}
-for (k = 0; k < 26; k++) {
-if (dicty[k] == 0) {
-keyT[i][j] = (char)(k + 97);
-j++;
-if (j == 5) {
-i++;
-j = 0;
-}
-}
-}
-}
-// Function to search for the characters of a digraph
-// in the key square and return their position
-void search(char keyT[5][5], char a, char b, int arr[])
-{
-int i, j;
-if (a == 'j')
-a = 'i';
-else if (b == 'j')
-b = 'i';
-for (i = 0; i < 5; i++) {
-for (j = 0; j < 5; j++) {
-if (keyT[i][j] == a) {
-arr[0] = i;
-arr[1] = j;
-}
-else if (keyT[i][j] == b) {
-arr[2] = i;
-arr[3] = j;
-}
-}
-}
-}
+
 // Function to find the modulus with 5
-int mod5(int a)
-{
-return (a % 5);
+int mod5(int a) {
+    return (a % 5);
 }
+
 // Function to make the plain text length to be even
-int prepare(char str[], int ptrs)
-{
-if (ptrs % 2 != 0) {
-str[ptrs++] = 'z';
-str[ptrs] = '\0';
+int prepare(char str[], int ptrs) {
+    if (ptrs % 2 != 0) {
+        str[ptrs++] = 'z';  // Padding with 'z'
+        str[ptrs] = '\0';
+    }
+    return ptrs;
 }
-return ptrs;
-}
+
 // Function for performing the encryption
-void encrypt(char str[], char keyT[5][5], int ps)
-{
-int i, a[4];
-for (i = 0; i < ps; i += 2) {
-search(keyT, str[i], str[i + 1], a);
-if (a[0] == a[2]) {
-str[i] = keyT[a[0]][mod5(a[1] + 1)];
-str[i + 1] = keyT[a[0]][mod5(a[3] + 1)];
+void encrypt(char str[], char keyT[5][5], int ps) {
+    int i, a[4];
+
+    for (i = 0; i < ps; i += 2) {
+        search(keyT, str[i], str[i + 1], a);
+        
+        if (a[0] == a[2]) {  // Same row
+            str[i] = keyT[a[0]][mod5(a[1] + 1)];
+            str[i + 1] = keyT[a[0]][mod5(a[3] + 1)];
+        } else if (a[1] == a[3]) {  // Same column
+            str[i] = keyT[mod5(a[0] + 1)][a[1]];
+            str[i + 1] = keyT[mod5(a[2] + 1)][a[1]];
+        } else {  // Rectangle swap
+            str[i] = keyT[a[0]][a[3]];
+            str[i + 1] = keyT[a[2]][a[1]];
+        }
+    }
 }
-else if (a[1] == a[3]) {
-str[i] = keyT[mod5(a[0] + 1)][a[1]];
-str[i + 1] = keyT[mod5(a[2] + 1)][a[1]];
+
+// Function for performing the decryption
+void decrypt(char str[], char keyT[5][5], int ps) {
+    int i, a[4];
+
+    for (i = 0; i < ps; i += 2) {
+        search(keyT, str[i], str[i + 1], a);
+        
+        if (a[0] == a[2]) {  // Same row
+            str[i] = keyT[a[0]][mod5(a[1] - 1 + 5)];
+            str[i + 1] = keyT[a[0]][mod5(a[3] - 1 + 5)];
+        } else if (a[1] == a[3]) {  // Same column
+            str[i] = keyT[mod5(a[0] - 1 + 5)][a[1]];
+            str[i + 1] = keyT[mod5(a[2] - 1 + 5)][a[1]];
+        } else {  // Rectangle swap
+            str[i] = keyT[a[0]][a[3]];
+            str[i + 1] = keyT[a[2]][a[1]];
+        }
+    }
 }
-else {
-str[i] = keyT[a[0]][a[3]];
-str[i + 1] = keyT[a[2]][a[1]];
-}
-}
-}
+
 // Function to encrypt using Playfair Cipher
-void encryptByPlayfairCipher(char str[], char key[])
-{
-char ps, ks, keyT[5][5];
-// Key
-ks = strlen(key);
-ks = removeSpaces(key, ks);
-toLowerCase(key, ks);
-// Plaintext
-ps = strlen(str);
-toLowerCase(str, ps);
-ps = removeSpaces(str, ps);
-ps = prepare(str, ps);
-generateKeyTable(key, ks, keyT);
-encrypt(str, keyT, ps);
+void encryptByPlayfairCipher(char str[], char key[]) {
+    int ps, ks;
+    char keyT[5][5];
+
+    // Key
+    ks = strlen(key);
+    ks = removeSpaces(key, ks);
+    toLowerCase(key, ks);
+
+    // Plaintext
+    ps = strlen(str);
+    toLowerCase(str, ps);
+    ps = removeSpaces(str, ps);
+    ps = prepare(str, ps);
+
+    // Generate key square
+    generateKeyTable(key, ks, keyT);
+
+    // Encrypt the plaintext
+    encrypt(str, keyT, ps);
 }
+
+// Function to decrypt using Playfair Cipher
+void decryptByPlayfairCipher(char str[], char key[]) {
+    int ps, ks;
+    char keyT[5][5];
+
+    // Key
+    ks = strlen(key);
+    ks = removeSpaces(key, ks);
+    toLowerCase(key, ks);
+
+    // Ciphertext
+    ps = strlen(str);
+    toLowerCase(str, ps);
+    ps = removeSpaces(str, ps);
+    ps = prepare(str, ps);
+
+    // Generate key square
+    generateKeyTable(key, ks, keyT);
+
+    // Decrypt the ciphertext
+    decrypt(str, keyT, ps);
+}
+
 // Driver code
-int main()
-{
-char str[SIZE], key[SIZE];
-// Key to be encrypted
-strcpy(key, "Monarchy");
-printf("Key text: %s\n", key);
-// Plaintext to be encrypted
-strcpy(str, "RAJESH");
-printf("Plain text: %s\n", str);
-// encrypt using Playfair Cipher
-encryptByPlayfairCipher(str, key);
-printf("Cipher text: %s\n", str);
-return 0;
+int main() {
+    char str[SIZE], key[SIZE];
+
+    // Key to be used
+    strcpy(key, "SAVEETHA");
+    printf("Key text: %s\n", key);
+
+    // Plaintext to be encrypted
+    strcpy(str, "RAJESH");
+    printf("Plain text: %s\n", str);
+
+    // Encrypt using Playfair Cipher
+    encryptByPlayfairCipher(str, key);
+    printf("Cipher text: %s\n", str);
+
+    // Decrypt using Playfair Cipher
+    decryptByPlayfairCipher(str, key);
+    printf("Decrypted text: %s\n", str);
+
+    return 0;
 }
 ```
 ## OUTPUT:
 Key text: Monarchy Plain text: RAJESH Cipher text: mrkfpb
 
-![Screenshot 2024-09-01 223011](https://github.com/user-attachments/assets/e8811598-00e0-4062-baf0-6259d5d09e7d)
+![Screenshot 2024-09-02 231615](https://github.com/user-attachments/assets/b0e0ea9c-fb4e-4433-80a0-b9b47f5dc5a3)
 
 ## RESULT:
 The program is executed successfully
@@ -527,63 +592,116 @@ In the rail fence cipher, the plaintext is written downwards and diagonally on s
 
 ## PROGRAM:
 ```py
-PROGRAM:
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-int main()
-{
-int i,j,len,rails,count,code[100][1000];
- char str[1000];
- printf("Enter a Secret Message\n");
- scanf("%s",str);
- len=strlen(str);
-printf("Enter number of rails\n");
-scanf("%d",&rails);
-for(i=0;i<rails;i++)
-{
- for(j=0;j<len;j++)
- {
- code[i][j]=0;
- }
+#include <stdio.h>
+#include <string.h>
+
+void encryptRailFence(char *text, int key, char *cipherText) {
+    int len = strlen(text);
+    int row, col, direction;
+    char rail[key][len];
+
+    // Initializing the rail matrix with null characters
+    for (row = 0; row < key; row++)
+        for (col = 0; col < len; col++)
+            rail[row][col] = '\n';
+
+    // Placing characters in the rail matrix in a zig-zag manner
+    row = 0;
+    direction = 1; // 1 for down, -1 for up
+    for (col = 0; col < len; col++) {
+        rail[row][col] = text[col];
+        if (row == 0)
+            direction = 1;
+        else if (row == key - 1)
+            direction = -1;
+        row += direction;
+    }
+
+    // Reading the matrix row-wise to get the cipher text
+    int index = 0;
+    for (row = 0; row < key; row++) {
+        for (col = 0; col < len; col++) {
+            if (rail[row][col] != '\n') {
+                cipherText[index++] = rail[row][col];
+            }
+        }
+    }
+    cipherText[index] = '\0';
 }
-count=0;
-j=0;
-while(j<len)
-{
-if(count%2==0)
-{
-for(i=0;i<rails;i++)
-{
- //strcpy(code[i][j],str[j]);
- code[i][j]=(int)str[j]; 
- j++;
+
+void decryptRailFence(char *cipherText, int key, char *plainText) {
+    int len = strlen(cipherText);
+    int row, col, direction;
+    char rail[key][len];
+
+    // Initializing the rail matrix with null characters
+    for (row = 0; row < key; row++)
+        for (col = 0; col < len; col++)
+            rail[row][col] = '\n';
+
+    // Marking the places in the rail matrix where the cipher text characters will go
+    row = 0;
+    direction = 1; // 1 for down, -1 for up
+    for (col = 0; col < len; col++) {
+        rail[row][col] = '*';
+        if (row == 0)
+            direction = 1;
+        else if (row == key - 1)
+            direction = -1;
+        row += direction;
+    }
+
+    // Filling the rail matrix with the cipher text characters
+    int index = 0;
+    for (row = 0; row < key; row++) {
+        for (col = 0; col < len; col++) {
+            if (rail[row][col] == '*' && index < len) {
+                rail[row][col] = cipherText[index++];
+            }
+        }
+    }
+
+    // Reading the matrix in a zig-zag manner to get the plain text
+    row = 0;
+    direction = 1; // 1 for down, -1 for up
+    for (col = 0; col < len; col++) {
+        plainText[col] = rail[row][col];
+        if (row == 0)
+            direction = 1;
+        else if (row == key - 1)
+            direction = -1;
+        row += direction;
+    }
+    plainText[len] = '\0';
 }
-}
-else
-{
-for(i=rails-2;i>0;i--)
-{
- code[i][j]=(int)str[j];
-j++;
-} 
-} 
-count++;
-}
-for(i=0;i<rails;i++)
-{
-for(j=0;j<len;j++)
-{
- if(code[i][j]!=0)
- printf("%c",code[i][j]);
-}
-}
-printf("\n");
+
+int main() {
+    char text[100], cipherText[100], plainText[100];
+    int key;
+
+    // Input the plain text
+    printf("Enter the plain text: ");
+    gets(text);
+
+    // Input the key (number of rails)
+    printf("Enter the key (number of rails): ");
+    scanf("%d", &key);
+
+    // Encrypt the plain text
+    encryptRailFence(text, key, cipherText);
+    printf("Encrypted Text: %s\n", cipherText);
+
+    // Decrypt the cipher text
+    decryptRailFence(cipherText, key, plainText);
+    printf("Decrypted Text: %s\n", plainText);
+
+    return 0;
 }
 ```
 ## OUTPUT:
 OUTPUT:
-![Screenshot 2024-09-01 223612](https://github.com/user-attachments/assets/a0a810ee-897b-4323-a666-cc2d7132a797)
+
+![Screenshot 2024-09-02 232113](https://github.com/user-attachments/assets/95a9789f-e1c8-4c70-9ef5-1c813d3565ed)
 
 Enter a Secret Message wearediscovered
 Enter number of rails 2
