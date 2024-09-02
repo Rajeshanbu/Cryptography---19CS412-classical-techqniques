@@ -504,62 +504,86 @@ The Vigenere cipher is a method of encrypting alphabetic text by using a series 
 PROGRAM :
 ```py
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>  // For exit() function
+#include <ctype.h>   // For toupper() function
+#include <string.h>  // For strlen() function
 
-// Function to perform Vigenere encryption
-void vigenereEncrypt(char *text, const char *key) {
-    int textLen = strlen(text);
-    int keyLen = strlen(key);
-
-    for (int i = 0; i < textLen; i++) {
-        char c = text[i];
-        if (c >= 'A' && c <= 'Z') {
-            // Encrypt uppercase letters
-            text[i] = ((c - 'A' + key[i % keyLen] - 'A') % 26) + 'A';
-        } else if (c >= 'a' && c <= 'z') {
-            // Encrypt lowercase letters
-            text[i] = ((c - 'a' + key[i % keyLen] - 'A') % 26) + 'a';
-        }
-    }
-}
-
-// Function to perform Vigenere decryption
-void vigenereDecrypt(char *text, const char *key) {
-    int textLen = strlen(text);
-    int keyLen = strlen(key);
-
-    for (int i = 0; i < textLen; i++) {
-        char c = text[i];
-        if (c >= 'A' && c <= 'Z') {
-            // Decrypt uppercase letters
-            text[i] = ((c - 'A' - (key[i % keyLen] - 'A') + 26) % 26) + 'A';
-        } else if (c >= 'a' && c <= 'z') {
-            // Decrypt lowercase letters
-            text[i] = ((c - 'a' - (key[i % keyLen] - 'A') + 26) % 26) + 'a';
-        }
-    }
-}
+void encipher();
+void decipher();
 
 int main() {
-    const char *key = "KEY";  // Replace with your desired key
-    char message[] = "RAJESH";  // Replace with your message
+    int choice;
+    while (1) {
+        printf("\n1. Encrypt Text");
+        printf("\n2. Decrypt Text");
+        printf("\n3. Exit");
+        printf("\n\nEnter Your Choice: ");
+        scanf("%d", &choice);
 
-    // Encrypt the message
-    vigenereEncrypt(message, key);
-    printf("Encrypted Message: %s\n", message);
+        if (choice == 3)
+            exit(0);
+        else if (choice == 1)
+            encipher();
+        else if (choice == 2)
+            decipher();
+        else
+            printf("Please Enter a Valid Option.\n");
+    }
+    return 0;  // Added return statement for the main function
+}
 
-    // Decrypt the message back to the original
-    vigenereDecrypt(message, key);
-    printf("Decrypted Message: %s\n", message);
+void encipher() {
+    unsigned int i, j;
+    char input[50], key[10];
 
-    return 0;
+    printf("\n\nEnter Plain Text: ");
+    scanf("%s", input);  // Removed newline for better input handling
+
+    printf("Enter Key Value: ");
+    scanf("%s", key);
+
+    printf("Resultant Cipher Text: ");
+    for (i = 0, j = 0; i < strlen(input); i++, j++) {
+        if (j >= strlen(key)) {
+            j = 0;
+        }
+        printf("%c", 65 + (((toupper(input[i]) - 65) + (toupper(key[j]) - 65)) % 26));
+    }
+    printf("\n");  // Added newline for output formatting
+}
+
+void decipher() {
+    unsigned int i, j;
+    char input[50], key[10];
+    int value;
+
+    printf("\n\nEnter Cipher Text: ");
+    scanf("%s", input);  // Removed newline for better input handling
+
+    printf("Enter the Key Value: ");
+    scanf("%s", key);
+
+    printf("Resultant Plain Text: ");
+    for (i = 0, j = 0; i < strlen(input); i++, j++) {
+        if (j >= strlen(key)) {
+            j = 0;
+        }
+
+        // Calculate the decrypted character value
+        value = (toupper(input[i]) - 65) - (toupper(key[j]) - 65);
+        if (value < 0) {
+            value += 26;  // Correct for negative values in circular shift
+        }
+        printf("%c", 65 + (value % 26));
+    }
+    printf("\n");  // Added newline for output formatting
 }
 ```
 ## OUTPUT:
 
 Simulating Vigenere Cipher
-![Screenshot 2024-09-01 223312](https://github.com/user-attachments/assets/d4948d28-ee41-43e8-af9c-183d6a8de2ec)
 
+![Screenshot 2024-09-02 232717](https://github.com/user-attachments/assets/df0094d9-f2b5-4e64-839b-992c648f71e2)
 
 Input Message : RAJESH
 Encrypted Message : BEHOWF Decrypted Message : RAJESH
