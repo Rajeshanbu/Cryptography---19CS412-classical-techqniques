@@ -1,5 +1,5 @@
-![image](https://github.com/user-attachments/assets/8f9b4f64-d888-4413-8bb6-9140575208e0)# Cryptography---19CS412-classical-techqniques
-# Caeser Cipher
+# Cryptography---19CS412-Classical-Techniques
+# EXP-01: Caeser Cipher
 Caeser Cipher using with different key values
 
 # AIM:
@@ -80,7 +80,7 @@ The program is executed successfully
 
 ---------------------------------
 
-# PlayFair Cipher
+# EXP-02: PlayFair Cipher
 Playfair Cipher using with different key values
 
 # AIM:
@@ -276,8 +276,7 @@ The program is executed successfully
 
 
 ---------------------------
-
-# Hill Cipher
+# EXP-03: Hill Cipher
 Hill Cipher using with different key values
 
 # AIM:
@@ -412,8 +411,7 @@ Input Message : RAJESH
 The program is executed successfully
 
 -------------------------------------------------
-
-# Vigenere Cipher
+# EXP-04: Vigenere Cipher
 Vigenere Cipher using with different key values
 
 # AIM:
@@ -505,8 +503,7 @@ Encrypted Message : BEHOWF Decrypted Message : RAJESH
 The program is executed successfully
 
 -----------------------------------------------------------------------
-
-# Rail Fence Cipher
+# EXP-05:  Rail Fence Cipher
 Rail Fence Cipher using with different key values
 
 # AIM:
