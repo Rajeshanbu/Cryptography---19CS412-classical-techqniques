@@ -324,7 +324,7 @@ int main() {
     printf("Key text: %s\n", key);
 
     // Plaintext to be encrypted
-    strcpy(str, "SISHANTH");
+    strcpy(str, "RAJESH");
     printf("Plain text: %s\n", str);
 
     // Encrypt using Playfair Cipher
@@ -339,9 +339,8 @@ int main() {
 }
 ```
 ## OUTPUT:
-Key text: Monarchy Plain text: RAJESH Cipher text: mrkfpb
 
-![Screenshot 2024-09-02 231615](https://github.com/user-attachments/assets/b0e0ea9c-fb4e-4433-80a0-b9b47f5dc5a3)
+![image](https://github.com/user-attachments/assets/0cea2b3a-a51e-4fd9-b173-e74eb523c0f5)
 
 ## RESULT:
 The program is executed successfully
