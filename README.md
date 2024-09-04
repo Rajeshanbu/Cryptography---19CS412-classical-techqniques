@@ -79,8 +79,8 @@ int main() {
 }
 ```
 ## OUTPUT:
-Simulating Caesar Cipher
-![Screenshot 2024-09-01 221302](https://github.com/user-attachments/assets/8ec667fc-43b3-4ccf-bf87-456a42c6ed49)
+
+![image](https://github.com/user-attachments/assets/1ad1c5d5-94e9-4707-beef-041cb6b31ae8)
 
 ## RESULT:
 The program is executed successfully
