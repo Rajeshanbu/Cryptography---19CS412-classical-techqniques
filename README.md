@@ -470,12 +470,10 @@ int main() {
 }
 ```
 ## OUTPUT:
-Simulating Hill Cipher
-![Screenshot 2024-09-02 225857](https://github.com/user-attachments/assets/09fb8b51-d0ec-4e2a-ad8e-9b3c4d973b54)
 
-Input Message : RAJESH
- Padded Message : RAJESH Encrypted Message : JAACYVYCB
- Decrypted Message : RAJESH
+![image](https://github.com/user-attachments/assets/42275624-1266-48c5-be35-dd94eb38c35c)
+
+
 ## RESULT:
 The program is executed successfully
 
