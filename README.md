@@ -34,42 +34,49 @@ PROGRAM:
 ```py
 #include <stdio.h>
 #include <stdlib.h>
+
 // Function to perform Caesar Cipher encryption
 void caesarEncrypt(char *text, int key) {
- for (int i = 0; text[i] != '\0'; i++) {
- char c = text[i];
- // Check if the character is an uppercase letter
- if (c >= 'A' && c <= 'Z') {
- text[i] = ((c - 'A' + key) % 26 + 26) % 26 + 'A';
- }
- // Check if the character is a lowercase letter
- else if (c >= 'a' && c <= 'z') {
- text[i] = ((c - 'a' + key) % 26 + 26) % 26 + 'a';
- }
- // Ignore non-alphabetic characters
- }
-}
-// Function to perform Caesar Cipher decryption
-void caesarDecrypt(char *text, int key) {
- // Decryption is the same as encryption with a negative key
- caesarEncrypt(text, -key);
-}
-int main() {
- char message[100]; // Declare a character array to store the message
- int key;
- printf("Enter the message to encrypt: ");
- fgets(message, sizeof(message), stdin); // Read input from the user
- printf("Enter the Caesar Cipher key (an integer): ");
- scanf("%d", &key); // Read the key from the user
- // Encrypt the message using the Caesar Cipher
- caesarEncrypt(message, key);
- printf("Encrypted Message: %s", message);
- // Decrypt the message back to the original
- caesarDecrypt(message, key);
- printf("Decrypted Message: %s", message);
- return 0;
+    for (int i = 0; text[i] != '\0'; i++) {
+        char c = text[i];
+        // Check if the character is an uppercase letter
+        if (c >= 'A' && c <= 'Z') {
+            text[i] = ((c - 'A' + key) % 26 + 26) % 26 + 'A';
+        }
+        // Check if the character is a lowercase letter
+        else if (c >= 'a' && c <= 'z') {
+            text[i] = ((c - 'a' + key) % 26 + 26) % 26 + 'a';
+        }
+        // Ignore non-alphabetic characters
+    }
 }
 
+// Function to perform Caesar Cipher decryption
+void caesarDecrypt(char *text, int key) {
+    // Decryption is the same as encryption with a negative key
+    caesarEncrypt(text, -key);
+}
+
+int main() {
+    char message[100]; // Declare a character array to store the message
+    int key;
+
+    printf("Enter the message to encrypt: ");
+    fgets(message, sizeof(message), stdin); // Read input from the user
+
+    printf("Enter the Caesar Cipher key (an integer): ");
+    scanf("%d", &key); // Read the key from the user
+
+    // Encrypt the message using the Caesar Cipher
+    caesarEncrypt(message, key);
+    printf("Encrypted Message: %s\n", message);
+
+    // Decrypt the message back to the original
+    caesarDecrypt(message, key);
+    printf("Decrypted Message: %s\n", message);
+
+    return 0;
+}
 ```
 ## OUTPUT:
 Simulating Caesar Cipher
@@ -317,7 +324,7 @@ int main() {
     printf("Key text: %s\n", key);
 
     // Plaintext to be encrypted
-    strcpy(str, "RAJESH");
+    strcpy(str, "SISHANTH");
     printf("Plain text: %s\n", str);
 
     // Encrypt using Playfair Cipher
@@ -417,7 +424,7 @@ int main() {
     char dec[1000] = "";
     int n;
 
-    strcpy(msg, "RAJESH_A");
+    strcpy(msg, "SISHANTH");
     printf("Input message : %s\n", msg);
 
     // Convert the input message to uppercase
@@ -462,7 +469,6 @@ int main() {
     printf("Decoded message : %s\n", dec);
     return 0;
 }
-
 ```
 ## OUTPUT:
 Simulating Hill Cipher
@@ -617,109 +623,79 @@ In the rail fence cipher, the plaintext is written downwards and diagonally on s
 ## PROGRAM:
 ```py
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>  // For exit() function
+#include <ctype.h>   // For toupper() function
+#include <string.h>  // For strlen() function
 
-void encryptRailFence(char *text, int key, char *cipherText) {
-    int len = strlen(text);
-    int row, col, direction;
-    char rail[key][len];
-
-    // Initializing the rail matrix with null characters
-    for (row = 0; row < key; row++)
-        for (col = 0; col < len; col++)
-            rail[row][col] = '\n';
-
-    // Placing characters in the rail matrix in a zig-zag manner
-    row = 0;
-    direction = 1; // 1 for down, -1 for up
-    for (col = 0; col < len; col++) {
-        rail[row][col] = text[col];
-        if (row == 0)
-            direction = 1;
-        else if (row == key - 1)
-            direction = -1;
-        row += direction;
-    }
-
-    // Reading the matrix row-wise to get the cipher text
-    int index = 0;
-    for (row = 0; row < key; row++) {
-        for (col = 0; col < len; col++) {
-            if (rail[row][col] != '\n') {
-                cipherText[index++] = rail[row][col];
-            }
-        }
-    }
-    cipherText[index] = '\0';
-}
-
-void decryptRailFence(char *cipherText, int key, char *plainText) {
-    int len = strlen(cipherText);
-    int row, col, direction;
-    char rail[key][len];
-
-    // Initializing the rail matrix with null characters
-    for (row = 0; row < key; row++)
-        for (col = 0; col < len; col++)
-            rail[row][col] = '\n';
-
-    // Marking the places in the rail matrix where the cipher text characters will go
-    row = 0;
-    direction = 1; // 1 for down, -1 for up
-    for (col = 0; col < len; col++) {
-        rail[row][col] = '*';
-        if (row == 0)
-            direction = 1;
-        else if (row == key - 1)
-            direction = -1;
-        row += direction;
-    }
-
-    // Filling the rail matrix with the cipher text characters
-    int index = 0;
-    for (row = 0; row < key; row++) {
-        for (col = 0; col < len; col++) {
-            if (rail[row][col] == '*' && index < len) {
-                rail[row][col] = cipherText[index++];
-            }
-        }
-    }
-
-    // Reading the matrix in a zig-zag manner to get the plain text
-    row = 0;
-    direction = 1; // 1 for down, -1 for up
-    for (col = 0; col < len; col++) {
-        plainText[col] = rail[row][col];
-        if (row == 0)
-            direction = 1;
-        else if (row == key - 1)
-            direction = -1;
-        row += direction;
-    }
-    plainText[len] = '\0';
-}
+void encipher();
+void decipher();
 
 int main() {
-    char text[100], cipherText[100], plainText[100];
-    int key;
+    int choice;
+    while (1) {
+        printf("\n1. Encrypt Text");
+        printf("\n2. Decrypt Text");
+        printf("\n3. Exit");
+        printf("\n\nEnter Your Choice: ");
+        scanf("%d", &choice);
 
-    // Input the plain text
-    printf("Enter the plain text: ");
-    gets(text);
+        if (choice == 3)
+            exit(0);
+        else if (choice == 1)
+            encipher();
+        else if (choice == 2)
+            decipher();
+        else
+            printf("Please Enter a Valid Option.\n");
+    }
+    return 0;  // Added return statement for the main function
+}
 
-    // Input the key (number of rails)
-    printf("Enter the key (number of rails): ");
-    scanf("%d", &key);
+void encipher() {
+    unsigned int i, j;
+    char input[50], key[10];
 
-    // Encrypt the plain text
-    encryptRailFence(text, key, cipherText);
-    printf("Encrypted Text: %s\n", cipherText);
+    printf("\n\nEnter Plain Text: ");
+    scanf("%s", input);  // Removed newline for better input handling
 
-    // Decrypt the cipher text
-    decryptRailFence(cipherText, key, plainText);
-    printf("Decrypted Text: %s\n", plainText);
+    printf("Enter Key Value: ");
+    scanf("%s", key);
 
-    return 0;
+    printf("Resultant Cipher Text: ");
+    for (i = 0, j = 0; i < strlen(input); i++, j++) {
+        if (j >= strlen(key)) {
+            j = 0;
+        }
+        printf("%c", 65 + (((toupper(input[i]) - 65) + (toupper(key[j]) - 65)) % 26));
+    }
+    printf("\n");  // Added newline for output formatting
+}
+
+void decipher() {
+    unsigned int i, j;
+    char input[50], key[10];
+    int value;
+
+    printf("\n\nEnter Cipher Text: ");
+    scanf("%s", input);  // Removed newline for better input handling
+
+    printf("Enter the Key Value: ");
+    scanf("%s", key);
+
+    printf("Resultant Plain Text: ");
+    for (i = 0, j = 0; i < strlen(input); i++, j++) {
+        if (j >= strlen(key)) {
+            j = 0;
+        }
+
+        // Calculate the decrypted character value
+        value = (toupper(input[i]) - 65) - (toupper(key[j]) - 65);
+        if (value < 0) {
+            value += 26;  // Correct for negative values in circular shift
+        }
+        printf("%c", 65 + (value % 26));
+    }
+    printf("\n");  // Added newline for output formatting
 }
 ```
 ## OUTPUT:
