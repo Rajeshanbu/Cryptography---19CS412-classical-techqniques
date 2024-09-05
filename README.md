@@ -343,7 +343,7 @@ int main() {
 ```
 ## OUTPUT:
 
-![Uploading image.png…]()
+![Screenshot 2024-09-05 091407](https://github.com/user-attachments/assets/b9a399c5-016c-477b-aaef-734aac3f3ecf)
 
 ## RESULT:
 The program is executed successfully
