@@ -623,79 +623,111 @@ In the rail fence cipher, the plaintext is written downwards and diagonally on s
 ## PROGRAM:
 ```c
 #include <stdio.h>
-#include <stdlib.h>  // For exit() function
-#include <ctype.h>   // For toupper() function
-#include <string.h>  // For strlen() function
+#include <string.h>
 
-void encipher();
-void decipher();
+void encryptRailFence(char *text, int key, char *cipherText) {
+    int len = strlen(text);
+    int row, col, direction;
+    char rail[key][len];
+
+    // Initializing the rail matrix with newline characters
+    for (row = 0; row < key; row++)
+        for (col = 0; col < len; col++)
+            rail[row][col] = '\n';
+
+    // Placing characters in the rail matrix in a zig-zag manner
+    row = 0;
+    direction = 1; // 1 for down, -1 for up
+    for (col = 0; col < len; col++) {
+        rail[row][col] = text[col];
+        if (row == 0)
+            direction = 1;
+        else if (row == key - 1)
+            direction = -1;
+        row += direction;
+    }
+
+    // Reading the matrix row-wise to get the cipher text
+    int index = 0;
+    for (row = 0; row < key; row++) {
+        for (col = 0; col < len; col++) {
+            if (rail[row][col] != '\n') {
+                cipherText[index++] = rail[row][col];
+            }
+        }
+    }
+    cipherText[index] = '\0';
+}
+
+void decryptRailFence(char *cipherText, int key, char *plainText) {
+    int len = strlen(cipherText);
+    int row, col, direction;
+    char rail[key][len];
+
+    // Initializing the rail matrix with newline characters
+    for (row = 0; row < key; row++)
+        for (col = 0; col < len; col++)
+            rail[row][col] = '\n';
+
+    // Marking the places in the rail matrix where the cipher text characters will go
+    row = 0;
+    direction = 1; // 1 for down, -1 for up
+    for (col = 0; col < len; col++) {
+        rail[row][col] = '*';
+        if (row == 0)
+            direction = 1;
+        else if (row == key - 1)
+            direction = -1;
+        row += direction;
+    }
+
+    // Filling the rail matrix with the cipher text characters
+    int index = 0;
+    for (row = 0; row < key; row++) {
+        for (col = 0; col < len; col++) {
+            if (rail[row][col] == '*' && index < len) {
+                rail[row][col] = cipherText[index++];
+            }
+        }
+    }
+
+    // Reading the matrix in a zig-zag manner to get the plain text
+    row = 0;
+    direction = 1; // 1 for down, -1 for up
+    for (col = 0; col < len; col++) {
+        plainText[col] = rail[row][col];
+        if (row == 0)
+            direction = 1;
+        else if (row == key - 1)
+            direction = -1;
+        row += direction;
+    }
+    plainText[len] = '\0';
+}
 
 int main() {
-    int choice;
-    while (1) {
-        printf("\n1. Encrypt Text");
-        printf("\n2. Decrypt Text");
-        printf("\n3. Exit");
-        printf("\n\nEnter Your Choice: ");
-        scanf("%d", &choice);
+    char text[100], cipherText[100], plainText[100];
+    int key;
 
-        if (choice == 3)
-            exit(0);
-        else if (choice == 1)
-            encipher();
-        else if (choice == 2)
-            decipher();
-        else
-            printf("Please Enter a Valid Option.\n");
-    }
-    return 0;  // Added return statement for the main function
-}
+    // Input the plain text
+    printf("Enter the plain text: ");
+    fgets(text, sizeof(text), stdin);
+    // Remove the newline character added by fgets
+    text[strcspn(text, "\n")] = '\0';
 
-void encipher() {
-    unsigned int i, j;
-    char input[50], key[10];
+    // Input the key (number of rails)
+    printf("Enter the key (number of rails): ");
+    scanf("%d", &key);
 
-    printf("\n\nEnter Plain Text: ");
-    scanf("%s", input);  // Removed newline for better input handling
+    // Encrypt the plain text
+    encryptRailFence(text, key, cipherText);
+    printf("Encrypted Text: %s\n", cipherText);
 
-    printf("Enter Key Value: ");
-    scanf("%s", key);
+    // Decrypt the cipher text
+    decryptRailFence(cipherText, key, plainText);
+    printf("Decrypted Text: %s\n", plainText);
 
-    printf("Resultant Cipher Text: ");
-    for (i = 0, j = 0; i < strlen(input); i++, j++) {
-        if (j >= strlen(key)) {
-            j = 0;
-        }
-        printf("%c", 65 + (((toupper(input[i]) - 65) + (toupper(key[j]) - 65)) % 26));
-    }
-    printf("\n");  // Added newline for output formatting
-}
-
-void decipher() {
-    unsigned int i, j;
-    char input[50], key[10];
-    int value;
-
-    printf("\n\nEnter Cipher Text: ");
-    scanf("%s", input);  // Removed newline for better input handling
-
-    printf("Enter the Key Value: ");
-    scanf("%s", key);
-
-    printf("Resultant Plain Text: ");
-    for (i = 0, j = 0; i < strlen(input); i++, j++) {
-        if (j >= strlen(key)) {
-            j = 0;
-        }
-
-        // Calculate the decrypted character value
-        value = (toupper(input[i]) - 65) - (toupper(key[j]) - 65);
-        if (value < 0) {
-            value += 26;  // Correct for negative values in circular shift
-        }
-        printf("%c", 65 + (value % 26));
-    }
-    printf("\n");  // Added newline for output formatting
+    return 0;
 }
 ```
 ## OUTPUT:
